@@ -1,11 +1,10 @@
-# Compiled
-*.elc
-
-# Packaging
-.cask
-
-# Backup files
-*~
-
-# Undo-tree save-files
-*.~undo-tree
+.cache
+auto-save-list
+auto-saves
+backups
+custom.el
+network-security.data
+projectile-bookmarks.eld
+recentf
+transient
+.DS_Store
