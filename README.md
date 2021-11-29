@@ -4,18 +4,18 @@ the past couple of years.
 
 Features include:
     Everything self-contained in ~/.emacs.d directory
+    Seperate folder for themes (~/emacs.d/themes)
     MELPA enabled (naturally)
     Many customisations including maximise-on-startup, column indicators at 80,
-        100 and 120, tab width set to 4, no startup screen, line numbers...
+        100 and 120, tab width set to 4, minimal toolbars, line numbers, etc
     Recent files list with C-x C-r
-    Redo+ with C-?
+    Redo+ (Undo with C-/, redo with C-?)
     Reload current file with C-x C-v
     Treemacs (Tree file browser)
     Magit (Git user-interface)
     Java code completion via JDEE (server JAR included)
     Use CPerl mode by default for Perl files
     Markdown Preview mode
-    Doom Emacs theme package
 
 # Installation
 Just clone this repo to ~/.emacs.d and you should be good to go. Make sure there
@@ -23,7 +23,7 @@ is no existing .emacs file in your home directory.
 
 # Specifying theme and font
 If you want to change the theme or font, I recommend you do this in Emacs
-itself, which will write the changes to ~/.emacs.d/gnu-emacs-custom.
+itself, which will write the changes to ~/.emacs.d/custom.el.
 
 For the theme:
     M-x customize-themes
@@ -31,6 +31,6 @@ For the theme:
 For the font:
     M-x customize-face
 
-gnu-emacs-custom has been added to the .gitignore file, so your personal
+custom.el has been added to the .gitignore file, so your personal
 preferences shall remain unmolested if you ever decide to pull updates
 from this repo.
