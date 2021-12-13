@@ -2,9 +2,12 @@
 auto-save-list
 auto-saves
 backups
+elpa
 custom.el
 network-security.data
 projectile-bookmarks.eld
 recentf
 transient
+#*
 .DS_Store
+.dap_breakpoints

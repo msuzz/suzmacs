@@ -8,17 +8,17 @@ Features include:
   - Seperate folder for themes (~/emacs.d/themes)  
   - MELPA enabled (naturally)  
   - Many customisations including maximise-on-startup, column indicators at 80,  
-    100 and 120, tab width set to 4, minimal toolbars, line numbers, etc  
+    100 and 120, tab width set to 4, minimal toolbars, line/column numbers, etc  
   - Recent files list with C-x C-r  
   - Redo+ (Undo with C-/, redo with C-?)  
   - Reload current file with C-x C-v  
-  - Treemacs (Tree file browser)  
-  - Flycheck  
-  - LSP Mode with lsp-ui (M-. for definitions, M-? for references)  
-  - Magit (Git user-interface, C-x g to open, C-c M-g for shortcuts)  
-  - Java code completion via JDEE (server JAR included)  
+  - which-key (Display keybindings in a popup)
+  - Treemacs (C-x t t for main tree, C-x)  
+  - Flycheck (Syntax checker)  
+  - Projectile (Project management)  
+  - LSP Mode configured for Java, C and C++ (M-. for definitions, M-? for references)  
+  - Magit (Git user-interface, C-x g to open, C-x M-g for shortcuts)  
   - Use CPerl mode by default for Perl files  
-  - Markdown Preview mode  
 
 # Installation
 Just clone this repo to ~/.emacs.d and you should be good to go. Make sure there
