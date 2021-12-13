@@ -1,5 +1,7 @@
 ;; 100 meg garbage collection threshold - will decrease startup times
 (setq gc-cons-threshold (* 100 1024 1024))
+;; For Langauge Server Protocol
+(setq read-process-output-max (* 1024 1024))
 
 ;; Main
 (if (file-readable-p "~/.emacs.d/gnu-emacs.el")

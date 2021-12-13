@@ -13,6 +13,8 @@ Features include:
   - Redo+ (Undo with C-/, redo with C-?)  
   - Reload current file with C-x C-v  
   - Treemacs (Tree file browser)  
+  - Flycheck  
+  - LSP Mode with lsp-ui (M-. for definitions, M-? for references)  
   - Magit (Git user-interface, C-x g to open, C-c M-g for shortcuts)  
   - Java code completion via JDEE (server JAR included)  
   - Use CPerl mode by default for Perl files  
