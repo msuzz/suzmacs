@@ -1,13 +1,18 @@
-.cache
-auto-save-list
-auto-saves
-backups
-elpa
+# Folders
+.cache/
+auto-save-list/
+auto-saves/
+backups/
+elpa/
+transient/
+url/
+
+# Loose files
+.dap_breakpoints
+.DS_Store
 custom.el
+forge-database.sqlite
 network-security.data
 projectile-bookmarks.eld
 recentf
-transient
-#*
-.DS_Store
-.dap_breakpoints
+Thumbs.db
