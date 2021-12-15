@@ -7,18 +7,19 @@
 ;;; One day I'll get around to making all of the indentation consistent...
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 ;; Add MELPA and ensure use-package is installed
 (require 'package)
+(add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
-(condition-case nil
-    (require 'use-package)
-  (file-error
-   (package-refresh-contents)
-   (package-install 'use-package)
-   (setq use-package-always-ensure t)
-   (require 'use-package)))
 
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(eval-and-compile
+  (setq use-package-always-ensure t
+        use-package-expand-minimally t))
 
 ;; setup ~/.emacs.d dirs
 (add-to-list 'load-path "~/.emacs.d/lisp/")
@@ -54,7 +55,7 @@
 (setq indent-tabs-mode nil)
 (setq tab-stop-list (number-sequence 4 200 4))
 
-;; clean up the widndow a bit
+;; clean up the window a bit
 (when (window-system)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
@@ -72,10 +73,23 @@
 ;; column number in mode line
 (setq column-number-mode t)
 
+;; disable sound
+(setq ring-bell-function 'ignore)
+
+;; put UI prompts in the minibuffer instead
+(setq use-dialog-box nil)
+
 ;; recent files list
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
 (global-set-key "\C-x\ \C-r" 'recentf-open-files)
+
+;; case-sensitive search
+(setq case-fold-search nil)
+
+;; UTF-8 as default
+(set-charset-priority 'unicode)
+(prefer-coding-system 'utf-8-unix)
 
 ;; redo+
 ;; requires lisp/redo+.el
@@ -101,17 +115,40 @@
 ;; A bunch of essentials
 (use-package gruvbox-theme)
 (use-package fzf)
-(use-package projectile)
-(use-package magit)
 (use-package flycheck :ensure t :init (global-flycheck-mode))
+(use-package flycheck-inline :config (global-flycheck-inline-mode))
 (use-package which-key :config (which-key-mode))
 
-;; Projectile (project manager) configuration
+;; Projectile
+;; ---------
+(use-package projectile
+  :diminish
+  :bind (("C-c k" . #'projectile-kill-buffers)
+         ("C-c m" . #'projectile-compile-project))
+  :custom
+  ;;(projectile-completion-system 'ivy)
+  (projectile-enable-caching t)
+  :config (projectile-mode))
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
-;; LSP
+
+;; Magit
+;; ----
+(use-package magit)
+;; libgit makes things faster
+;;(use-package libgit)
+;;(use-package magit-libgit :after (magit libgit))
+;; Github integration
+(use-package forge
+  :after magit)
+;; hack to eliminate weirdness
+(unless (boundp 'bug-reference-auto-setup-functions)
+  (defvar bug-reference-auto-setup-functions '()))
+
+;; LSP mode
+;; --------
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
   :hook (lsp-mode . lsp-enable-which-key-integration)
@@ -121,17 +158,41 @@
   :config (setq lsp-completion-enable-additional-text-edit nil)
   :commands lsp lsp-deferred)
 
-(use-package lsp-ui :commands lsp-ui-mode)
+(use-package lsp-ui
+  :after lsp-mode
+  :custom (lsp-ui-doc-show-with-mouse t)
+          (lsp-ui-doc-show-with-cursor nil)
+          (lsp-ui-doc-delay 1.5)
+  :config (lsp-ui-doc-mode)
+  :commands lsp-ui-mode)
+
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 (use-package lsp-java :config (add-hook 'java-mode-hook 'lsp-deferred))
-(use-package ccls)
-(if (eq system-type 'cygwin)
-    ;; Here's one I prepared earlier (statically linked ;))
-    (setq ccls-executable "~/.emacs.d/ccls/ccls.exe"))
+(use-package ccls
+  :hook ((c-mode c++-mode objc-mode cuda-mode) .
+	 (lambda () (require 'ccls) (lsp)))
+  :config (if (eq system-type 'cygwin)
+	      ;; Here's one I prepared earlier (statically linked ;))
+	      (setq ccls-executable "~/.emacs.d/ccls/ccls.exe")))
 
 ;; DAP mode
-(use-package dap-mode :after lsp-mode :config (dap-auto-configure-mode))
+;; --------
+(use-package dap-mode
+  :after lsp-mode
+  :bind (("C-c b b" . dap-breakpoint-toggle)
+	 ("C-c b r" . dap-debug-restart)
+	 ("C-c b l" . dap-debug-last)
+	 ("C-c b d" . dap-debug))
+  :config (dap-mode)
+          (dap-auto-configure-mode)
+	  (dap-ui-mode)
+	  (dap-ui-controls-mode))
 (use-package dap-java :ensure nil)
+
+;; search and replace replacement
+(use-package visual-regexp
+  :bind (("C-c 5" . #'vr/replace)))
+
 
 ;; Bigass Treemacs section - copied from Treemacs github page
 (use-package treemacs
@@ -193,7 +254,7 @@
 
     ;; The default width and height of the icons is 22 pixels. If you are
     ;; using a Hi-DPI display, uncomment this to double the icon size.
-    (treemacs-resize-icons 22)
+    (treemacs-resize-icons 16)
 
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
@@ -229,6 +290,15 @@
 ;;; Language-specific stuff
 ;;; -----------------------
 
+;; Modes for file types
+(setq auto-mode-alist
+    (append auto-mode-alist
+        ;; perl module or library
+        '(("\\.p\[lm]\\'" . cperl-mode)
+        ;; test file
+        ("\\.t\\'" . cperl-mode)
+        ("\\.java\\'" . java-mode)
+        ("\\.md\\'" . markdown-mode))))
 
 ;; perl
 ;; ----
@@ -237,32 +307,6 @@
 ;; "Brevity is the soul of wit" <foo at acm.org>
 (defalias 'perl-mode 'cperl-mode)
 (setq cperl-indent-level 4)
-
-;; auto-mode for perl
-(setq auto-mode-alist
-    (append auto-mode-alist
-        ;; perl module or library
-        '(("\\.p\[lm]\\'" . cperl-mode)
-        ;; test file
-        ("\\.t\\'" . cperl-mode))))
-
-
-;; Java
-;; ----
-
-;; auto-mode for Java
-(setq auto-mode-alist
-    (append auto-mode-alist
-        '(("\\.java\\'" . java-mode))))
-
-
-;; Markdown
-;; --------
-
-;; auto-mode for Markdown
-(setq auto-mode-alist
-    (append auto-mode-alist
-        '(("\\.md\\'" . markdown-mode))))
 
 
 ;;; ---------------------------
