@@ -1,15 +1,19 @@
 # Folders
 .cache/
+.extension/
 auto-save-list/
 auto-saves/
 backups/
 elpa/
 transient/
+themes/*
 url/
 
 # Loose files
-.dap_breakpoints
+*.html
+.dap-breakpoints
 .DS_Store
+.lsp-session-v1
 custom.el
 forge-database.sqlite
 network-security.data
