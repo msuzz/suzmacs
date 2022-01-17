@@ -68,7 +68,7 @@ when pulling updates.
 	
 	The path to the 'ccls' binary can be specified by adding this line to your custom.el:  
 	
-  > `(setq ccls-executable "/path/to/ccls")`
+    > `(setq ccls-executable "/path/to/ccls")`
 	
   - DAP mode requires the [vscode-cpptools](https://github.com/microsoft/vscode-cpptools)
     VS Code extension to be extracted to ~/.emacs.d/.extension/vscode/cpptools.  
