@@ -290,16 +290,6 @@
 ;;; Language-specific stuff
 ;;; -----------------------
 
-;; Modes for file types
-(setq auto-mode-alist
-    (append auto-mode-alist
-        ;; perl module or library
-        '(("\\.p\[lm]\\'" . cperl-mode)
-        ;; test file
-        ("\\.t\\'" . cperl-mode)
-        ("\\.java\\'" . java-mode)
-        ("\\.md\\'" . markdown-mode))))
-
 ;; perl
 ;; ----
 
@@ -307,6 +297,12 @@
 ;; "Brevity is the soul of wit" <foo at acm.org>
 (defalias 'perl-mode 'cperl-mode)
 (setq cperl-indent-level 4)
+
+;; Modes for file types
+(setq auto-mode-alist
+    (append auto-mode-alist
+        ("\\.java\\'" . java-mode)
+        ("\\.md\\'" . markdown-mode))))
 
 
 ;;; ---------------------------
