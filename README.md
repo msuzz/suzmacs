@@ -15,7 +15,7 @@ Features include:
   - Seperate folder for themes (~/emacs.d/themes)  
   - MELPA enabled (naturally)  
   - Many customisations including maximise-on-startup, column indicators at 80,  
-	100 and 120, minimal toolbars, line/column numbers, etc...  
+    100 and 120, minimal toolbars, line/column numbers, etc...  
   - Recent files list with C-x C-r  
   - Redo+ (Undo with C-/, redo with C-?)  
   - Reload current file with C-x C-v  
