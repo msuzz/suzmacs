@@ -66,11 +66,9 @@ when pulling updates.
       with an option to add the executables folder to your PATH.  
     - On Cygwin, you will need to compile ccls yourself (see [here](https://github.com/MaskRay/ccls/wiki/Build)).  
 	
-	The path to the 'ccls' binary can be specified with:  
+	The path to the 'ccls' binary can be specified by adding this line to your custom.el:  
 	
   > `(setq ccls-executable "/path/to/ccls")`
-	
-	in your custom.el file.  
 	
   - DAP mode requires the [vscode-cpptools](https://github.com/microsoft/vscode-cpptools)
     VS Code extension to be extracted to ~/.emacs.d/.extension/vscode/cpptools.  
