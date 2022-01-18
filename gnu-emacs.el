@@ -126,6 +126,9 @@
 (use-package flycheck :ensure t :init (global-flycheck-mode))
 (use-package flycheck-inline :config (global-flycheck-inline-mode))
 (use-package which-key :config (which-key-mode))
+(use-package yasnippet)
+(use-package hydra)
+(use-package avy)
 
 ;; Projectile
 ;; ---------
@@ -172,6 +175,12 @@
   :config (setq lsp-completion-enable-additional-text-edit nil)
   :commands lsp lsp-deferred)
 
+(use-package lsp-java :config (add-hook 'java-mode-hook 'lsp-deferred))
+;; Requires LLVM
+(use-package ccls
+  :hook ((c-mode c++-mode objc-mode cuda-mode) .
+	 (lambda () (require 'ccls) (lsp))))
+
 (use-package lsp-ui
   :after lsp-mode
   :custom (lsp-ui-doc-show-with-mouse t)
@@ -181,11 +190,15 @@
   :commands lsp-ui-mode)
 
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
-(use-package lsp-java :config (add-hook 'java-mode-hook 'lsp-deferred))
-;; Requires LLVM
-(use-package ccls
-  :hook ((c-mode c++-mode objc-mode cuda-mode) .
-	 (lambda () (require 'ccls) (lsp))))
+
+(use-package helm-lsp)
+(use-package helm-xref)
+;; sample `helm' configuration use https://github.com/emacs-helm/helm/ for details
+(helm-mode)
+(require 'helm-xref)
+(define-key global-map [remap find-file] #'helm-find-files)
+(define-key global-map [remap execute-extended-command] #'helm-M-x)
+(define-key global-map [remap switch-to-buffer] #'helm-mini)
 
 ;; DAP mode
 ;; --------
@@ -210,13 +223,6 @@
 ;; RealGUD
 ;; -------
 (use-package realgud)
-
-;; Company
-;; -------
-(use-package company)
-(add-hook 'after-init-hook 'global-company-mode)
-;; Requires PlSense perl module, abandoned
-;;(use-package company-plsense)
 
 ;; search and replace replacement
 (use-package visual-regexp
