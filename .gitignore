@@ -6,7 +6,7 @@ auto-saves/
 backups/
 elpa/
 transient/
-themes/*
+themes/
 url/
 
 # Loose files
@@ -19,4 +19,3 @@ forge-database.sqlite
 network-security.data
 projectile-bookmarks.eld
 recentf
-Thumbs.db
