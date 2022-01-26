@@ -8,12 +8,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;; Add MELPA and ensure use-package is installed
+;; Add MELPA
 (require 'package)
-(add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
 
+;; Ensure use-package is installed
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -21,7 +21,7 @@
   (setq use-package-always-ensure t
         use-package-expand-minimally t))
 
-;; setup ~/.emacs.d dirs
+;; setup dirs
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
@@ -37,80 +37,63 @@
         tramp-backup-directory-alist `((".*" . ,backup-dir))
         tramp-auto-save-directory auto-saves-dir))
 
-(setq backup-by-copying t    ; Don't delink hardlinks
-      delete-old-versions t  ; Clean up the backups
-      version-control t      ; Use version numbers on backups,
-      kept-new-versions 5    ; keep some new versions
-      kept-old-versions 2)   ; and some old ones, too
-
-;; for quickly reloading a changed buffer
-(global-set-key "\C-x\ \C-v" 'find-alternate-file)
-
-;; turn off auto-fill-mode
-(auto-fill-mode -1)
-(remove-hook 'text-mode-hook #'turn-on-auto-fill)
-
-;; setup tabs (tab key, not the other kind)
-(setq tab-width 4
+;; Change some default variables
+(setq backup-by-copying t   ; Don't delink hardlinks
+      delete-old-versions t ; Clean up the backups
+      version-control t     ; Use version numbers on backups,
+      kept-new-versions 5   ; keep some new versions
+      kept-old-versions 2   ; and some old ones, too
+      tab-width 4
       tab-stop-list (number-sequence 4 200 4)
-      indent-tabs-mode nil)
+      inhibit-startup-screen t
+      ring-bell-function 'ignore
+      column-number-mode t
+      use-dialog-box nil    ; Put prompts in minibuffer
+      use-short-answers t   ; y/n instead of yes/no
+      load-prefer-newer t   ; Prefer newer elisp files
+      x-select-enable-clipboard nil ; Keep the Emacs kill ring
+      x-select-enable-primary nil   ; out of the system clipboard.
+      compilation-read-command nil
+      compilation-scroll-output 'first-error)
 
-;; clean up the window a bit
+(setq-default indent-tabs-mode nil)
+(global-set-key "\C-x\ \C-v" 'find-alternate-file) ; Quickly reload a changed buffer
+(auto-fill-mode -1) ; Turn off auto-fill-mode
+(remove-hook 'text-mode-hook #'turn-on-auto-fill)
 (when (window-system)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (tooltip-mode -1))
+  (tool-bar-mode -1)    ; No tool bar
+  (scroll-bar-mode -1)  ; No scroll bar
+  (tooltip-mode -1))    ; no GUI tooltips
+(add-to-list 'default-frame-alist '(fullscreen . maximized)) ; Start maximized
+(global-linum-mode 1)   ; line numbers on side
+(set-charset-priority 'unicode) ; UTF-8 as default
+(prefer-coding-system 'utf-8-unix)
 
-;; fuck the startup screen off
-(setq inhibit-startup-screen t)
-
-;; maximize on startup
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-
-;; line numbers on side
-(global-linum-mode 1)
-
-;; column number in mode line
-(setq column-number-mode t)
-
-;; disable sound
-(setq ring-bell-function 'ignore)
-
-;; put UI prompts in the minibuffer instead
-(setq use-dialog-box nil)
-
-;; recent files list
+;; Recent files list
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
 (global-set-key "\C-x\ \C-r" 'recentf-open-files)
 
-;; case-sensitive search
-(setq case-fold-search nil)
-
-;; UTF-8 as default
-(set-charset-priority 'unicode)
-(prefer-coding-system 'utf-8-unix)
-
 ;; redo+
-;; requires lisp/redo+.el
+;; Requires lisp/redo+.el
 (require 'redo+)
 (global-set-key (kbd "C-?") 'redo)
 
-;; highlight text past columns 80 and 100
-;; requires lisp/column-marker.el
+;; Highlight text past columns 80 and 100
+;; Requires lisp/column-marker.el
 (require 'column-marker)
 (add-hook 'prog-mode-hook (lambda ()
   (interactive) (column-marker-1 80)))
 (add-hook 'prog-mode-hook (lambda ()
   (interactive) (column-marker-2 100)))
 
-;; column indicator at line 120 - you don't wanna cross this bad boy
+;; Column indicator at line 120 - you don't wanna cross this bad boy
 (add-hook 'prog-mode-hook (lambda ()
   (display-fill-column-indicator-mode)))
 (setq-default display-fill-column-indicator-column 120)
 
 ;; guess-style
-;; requires lisp/guess-style.el
+;; Requires lisp/guess-style.el
 (require 'guess-style)
 (autoload 'guess-style-set-variable "guess-style" nil t)
 (autoload 'guess-style-guess-variable "guess-style")
@@ -121,6 +104,7 @@
 ;;; ---------------------------------
 
 ;; A bunch of essentials
+(use-package exec-path-from-shell :init (exec-path-from-shell-initialize))
 (use-package gruvbox-theme)
 (use-package fzf)
 (use-package flycheck :ensure t :init (global-flycheck-mode))
@@ -348,6 +332,3 @@
 ;;        ("\\.java\\'" . java-mode)
 ;;        ("\\.md\\'" . markdown-mode))))
 
-
-;;; ---------------------------
-;;; End language-specific stuff
