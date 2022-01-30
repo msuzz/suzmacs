@@ -102,11 +102,11 @@
 
 ;; guess-style
 ;; Requires lisp/guess-style.el
-(require 'guess-style)
-(autoload 'guess-style-set-variable "guess-style" nil t)
-(autoload 'guess-style-guess-variable "guess-style")
-(autoload 'guess-style-guess-all "guess-style" nil t)
-(add-hook 'prog-mode-hook 'guess-style-guess-all)
+;(require 'guess-style)
+;(autoload 'guess-style-set-variable "guess-style" nil t)
+;(autoload 'guess-style-guess-variable "guess-style")
+;(autoload 'guess-style-guess-all "guess-style" nil t)
+;(add-hook 'prog-mode-hook 'guess-style-guess-all)
 
 ;;; Packages and package configuration
 ;;; ---------------------------------
