@@ -104,7 +104,6 @@
 ;;; ---------------------------------
 
 ;; A bunch of essentials
-(use-package exec-path-from-shell :init (exec-path-from-shell-initialize))
 (use-package gruvbox-theme)
 (use-package fzf)
 (use-package flycheck :ensure t :init (global-flycheck-mode))
@@ -114,39 +113,68 @@
 (use-package hydra)
 (use-package avy)
 
+
+;; Helm
+;; ----
+(use-package helm-xref
+  :config (helm-mode))
+
+(use-package helm-lsp
+  :after lsp-mode)
+
+;; sample `helm' configuration use https://github.com/emacs-helm/helm/ for details
+(define-key global-map [remap find-file] #'helm-find-files)
+(define-key global-map [remap execute-extended-command] #'helm-M-x)
+(define-key global-map [remap switch-to-buffer] #'helm-mini)
+
+
 ;; Projectile
 ;; ---------
 (use-package projectile
-  :diminish
+  :diminish projectile-mode
   :bind (("C-c k" . #'projectile-kill-buffers)
          ("C-c m" . #'projectile-compile-project))
-  :custom
-  ;;(projectile-completion-system 'ivy)
-  (projectile-enable-caching t)
-  :config (projectile-mode))
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  :bind-keymap ("C-c p" . projectile-command-map)
+  :custom (projectile-enable-caching t)
+  :config (projectile-mode)
+  :init (when (file-directory-p "~/Projects")
+          (setq projectile-project-search-path '("~/Projects")))
+        (setq projectile-switch-project-action #'projectile-dired))
+
 
 ;; Magit
 ;; ----
 (use-package magit)
+
 ;; libgit makes things faster
 ;;(use-package libgit)
 ;;(use-package magit-libgit :after (magit libgit))
+
 ;; Github integration
-(use-package forge
-  :after magit)
+(use-package forge :after magit)
+
 ;; hack to eliminate weirdness
 (unless (boundp 'bug-reference-auto-setup-functions)
   (defvar bug-reference-auto-setup-functions '()))
 
+
 ;; Company
 ;; -------
-(use-package company)
-(add-hook 'after-init-hook 'global-company-mode)
+(use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode) 
+        (after-init-hook . global-company-mode)
+  :bind (:map company-active-map ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
+  :custom (company-minimum-prefix-length 1)
+          (company-idle-delay 0.0))
+
+(use-package company-box ; Nicer looking company frontend
+  :hook (company-mode . company-box-mode))
+
 ;; Requires PlSense perl module, abandoned
 ;;(use-package company-plsense)
+
 
 ;; LSP mode
 ;; --------
@@ -159,11 +187,15 @@
   :config (setq lsp-completion-enable-additional-text-edit nil)
   :commands lsp lsp-deferred)
 
-(use-package lsp-java :config (add-hook 'java-mode-hook 'lsp-deferred))
-;; Requires LLVM
-(use-package ccls
-  :hook ((c-mode c++-mode objc-mode cuda-mode) .
-	 (lambda () (require 'ccls) (lsp))))
+(require 'lsp-java) ; Java
+(add-hook 'java-mode-hook 'lsp-deferred)
+
+(require 'lsp-java-boot) ; Experimental Spring boot support
+(add-hook 'lsp-mode-hook 'lsp-lens-mode)
+(add-hook 'java-mode-hook 'lsp-java-boot-lens-mode)
+
+(use-package ccls ; C/C++/ObjC, requires llvm
+  :hook ((c-mode c++-mode objc-mode cuda-mode) . (lambda () (require 'ccls) (lsp-deferred))))
 
 (use-package lsp-ui
   :after lsp-mode
@@ -175,42 +207,35 @@
 
 (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 
-(use-package helm-lsp)
-(use-package helm-xref)
-;; sample `helm' configuration use https://github.com/emacs-helm/helm/ for details
-(helm-mode)
-(require 'helm-xref)
-(define-key global-map [remap find-file] #'helm-find-files)
-(define-key global-map [remap execute-extended-command] #'helm-M-x)
-(define-key global-map [remap switch-to-buffer] #'helm-mini)
 
 ;; DAP mode
 ;; --------
 (use-package dap-mode
   :after lsp-mode
-  :bind (("C-c b b" . dap-breakpoint-toggle)
-	 ("C-c b r" . dap-debug-restart)
-	 ("C-c b l" . dap-debug-last)
-	 ("C-c b d" . dap-debug))
+  :bind ("C-c b b" . dap-breakpoint-toggle)
+	    ("C-c b r" . dap-debug-restart)
+	    ("C-c b l" . dap-debug-last)
+	    ("C-c b d" . dap-debug)
   :config (dap-mode)
           (dap-auto-configure-mode)
-	  (dap-ui-mode)
-	  (dap-ui-controls-mode))
+	      (dap-ui-mode)
+	      (dap-ui-controls-mode))
+  :hook (add-hook 'dap-stopped-hook
+                  (lambda (arg) (call-interactively #'dap-hydra)))
+
 (use-package dap-java :ensure nil)
 (require 'dap-cpptools)
-;; Override codelldb.exe path
-;;(defcustom dap-lldb-debug-program `(,(expand-file-name "~/.emacs.d/bin/codelldb.exe"))
-;;  "The path to the LLDB debugger."
-;;  :group 'dap-lldb
-;;  :type '(repeat string))
+
 
 ;; RealGUD
 ;; -------
 (use-package realgud)
 
+
 ;; search and replace replacement
 (use-package visual-regexp
   :bind (("C-c 5" . #'vr/replace)))
+
 
 ;; Bigass Treemacs section - copied from Treemacs github page
 (use-package treemacs
@@ -295,17 +320,27 @@
         ("C-x t C-t" . treemacs-find-file)
         ("C-x t M-t" . treemacs-find-tag)))
 
-(use-package treemacs-projectile :after (treemacs projectile) :ensure t)
-(use-package treemacs-icons-dired :hook (dired-mode . treemacs-icons-dired-enable-once) :ensure t)
-(use-package treemacs-magit :after (treemacs magit) :ensure t)
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :hook (dired-mode . treemacs-icons-dired-enable-once)
+  :ensure t)
+
+(use-package treemacs-magit
+  :after (treemacs magit)
+  :ensure t)
 
 ;;(use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
 ;;  :after (treemacs persp-mode) ;;or perspective vs. persp-mode
 ;;  :ensure t
 ;;  :config (treemacs-set-scope-type 'Perspectives))4
 
+
 ;; Smart tabs mode
 (use-package smart-tabs-mode)
+
 ;; Enable smart tabs only for programming modes
 (smart-tabs-insinuate 'c 'c++ 'cperl 'java)
 (add-hook 'c-mode-common-hook
@@ -314,6 +349,7 @@
 	  (lambda () (setq indent-tabs-mode t)))
 (add-hook 'cperl-mode-hook
 	  (lambda () (setq indent-tabs-mode t)))
+
 
 ;;; Language-specific stuff
 ;;; -----------------------
