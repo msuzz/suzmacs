@@ -4,6 +4,7 @@
 auto-save-list/
 auto-saves/
 backups/
+eclipse.jdt.ls/
 elpa/
 transient/
 themes/
@@ -13,9 +14,11 @@ url/
 *.html
 .dap-breakpoints
 .DS_Store
+.last-package-update-day
 .lsp-session-v1
 custom.el
 forge-database.sqlite
 network-security.data
+projectile.cache
 projectile-bookmarks.eld
 recentf
