@@ -17,11 +17,19 @@
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
-(eval-and-compile
-  (setq use-package-always-ensure t
-        use-package-expand-minimally t))
 
-;; setup dirs
+;; Download and install packages
+(require 'use-package-ensure)
+(setq use-package-always-ensure t
+      use-package-expand-minimally t)
+
+;; Ensure packages are kept up to date
+(use-package auto-package-update
+  :config (setq auto-package-update-delete-old-versions t
+                auto-package-update-hide-results t)
+          (auto-package-update-maybe))
+
+;; Setup dirs
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
@@ -106,9 +114,12 @@
 ;; A bunch of essentials
 (use-package gruvbox-theme)
 (use-package fzf)
-(use-package flycheck :ensure t :init (global-flycheck-mode))
-(use-package flycheck-inline :config (global-flycheck-inline-mode))
-(use-package which-key :config (which-key-mode))
+(use-package flycheck
+  :init (global-flycheck-mode)
+  :config (use-package flycheck-inline
+            :config (global-flycheck-inline-mode)))
+(use-package which-key
+  :config (which-key-mode))
 (use-package yasnippet)
 (use-package hydra)
 (use-package avy)
@@ -117,15 +128,10 @@
 ;; Helm
 ;; ----
 (use-package helm-xref
-  :config (helm-mode))
-
-(use-package helm-lsp
-  :after lsp-mode)
-
-;; sample `helm' configuration use https://github.com/emacs-helm/helm/ for details
-(define-key global-map [remap find-file] #'helm-find-files)
-(define-key global-map [remap execute-extended-command] #'helm-M-x)
-(define-key global-map [remap switch-to-buffer] #'helm-mini)
+  :config (helm-mode)
+  :bind ([remap find-file] . helm-find-files)
+        ([remap execute-extended-command] . helm-M-x)
+        ([remap switch-to-buffer] . helm-mini))
 
 
 ;; Projectile
@@ -144,36 +150,12 @@
 
 ;; Magit
 ;; ----
-(use-package magit)
-
-;; libgit makes things faster
-;;(use-package libgit)
-;;(use-package magit-libgit :after (magit libgit))
-
-;; Github integration
-(use-package forge :after magit)
-
-;; hack to eliminate weirdness
-(unless (boundp 'bug-reference-auto-setup-functions)
-  (defvar bug-reference-auto-setup-functions '()))
-
-
-;; Company
-;; -------
-(use-package company
-  :after lsp-mode
-  :hook (lsp-mode . company-mode) 
-        (after-init-hook . global-company-mode)
-  :bind (:map company-active-map ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
-  :custom (company-minimum-prefix-length 1)
-          (company-idle-delay 0.0))
-
-(use-package company-box ; Nicer looking company frontend
-  :hook (company-mode . company-box-mode))
-
-;; Requires PlSense perl module, abandoned
-;;(use-package company-plsense)
+(use-package magit
+  :config (use-package forge)
+          ;(use-package libgit
+          ;  :config (use-package magit-libgit))
+          (unless (boundp 'bug-reference-auto-setup-functions)
+             (defvar bug-reference-auto-setup-functions '())))
 
 
 ;; LSP mode
@@ -182,49 +164,61 @@
   :init (setq lsp-keymap-prefix "C-c l")
   :hook (lsp-mode . lsp-enable-which-key-integration)
         (c-mode . lsp-deferred)
-	    (c++-mode . lsp-deferred)
-	    (cperl-mode . lsp-deferred)
+	(c++-mode . lsp-deferred)
+	(cperl-mode . lsp-deferred)
   :config (setq lsp-completion-enable-additional-text-edit nil)
+          (use-package lsp-ui
+            :custom (lsp-ui-doc-show-with-mouse t)
+                    (lsp-ui-doc-show-with-cursor nil)
+                    (lsp-ui-doc-delay 1.5)
+            :config (lsp-ui-doc-mode)
+            :commands lsp-ui-mode)
+          (use-package helm-lsp)
+          (use-package lsp-treemacs
+            :custom (lsp-treemacs-sync-mode 1))
+          (use-package lsp-java
+            :hook (java-mode-hook . lsp-deferred)
+            :config (use-package lsp-java-boot
+                      :hook (lsp-mode-hook . lsp-lens-mode)
+                            (java-mode-hook . lsp-java-boot-lens-mode)))
+          (use-package ccls
+            :hook ((c-mode c++-mode objc-mode cuda-mode) . (lambda () (require 'ccls) (lsp-deferred))))
   :commands lsp lsp-deferred)
 
-(require 'lsp-java) ; Java
-(add-hook 'java-mode-hook 'lsp-deferred)
-
-(require 'lsp-java-boot) ; Experimental Spring boot support
-(add-hook 'lsp-mode-hook 'lsp-lens-mode)
-(add-hook 'java-mode-hook 'lsp-java-boot-lens-mode)
-
-(use-package ccls ; C/C++/ObjC, requires llvm
-  :hook ((c-mode c++-mode objc-mode cuda-mode) . (lambda () (require 'ccls) (lsp-deferred))))
-
-(use-package lsp-ui
+          
+;; Company
+;; -------
+(use-package company
   :after lsp-mode
-  :custom (lsp-ui-doc-show-with-mouse t)
-          (lsp-ui-doc-show-with-cursor nil)
-          (lsp-ui-doc-delay 1.5)
-  :config (lsp-ui-doc-mode)
-  :commands lsp-ui-mode)
-
-(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
-
+  :hook (lsp-mode . company-mode)
+        (after-init-hook . global-company-mode)
+  :bind (:map company-active-map ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
+  :custom (company-minimum-prefix-length 1)
+          (company-idle-delay 0.0)
+  :config (use-package company-box
+            :hook (company-mode . company-box-mode)))
+          
+;; Requires PlSense perl module, abandoned
+;;(use-package company-plsense)
+          
 
 ;; DAP mode
 ;; --------
 (use-package dap-mode
   :after lsp-mode
   :bind ("C-c b b" . dap-breakpoint-toggle)
-	    ("C-c b r" . dap-debug-restart)
-	    ("C-c b l" . dap-debug-last)
-	    ("C-c b d" . dap-debug)
+	("C-c b r" . dap-debug-restart)
+	("C-c b l" . dap-debug-last)
+	("C-c b d" . dap-debug)
   :config (dap-mode)
           (dap-auto-configure-mode)
-	      (dap-ui-mode)
-	      (dap-ui-controls-mode))
-  :hook (add-hook 'dap-stopped-hook
-                  (lambda (arg) (call-interactively #'dap-hydra)))
-
-(use-package dap-java :ensure nil)
-(require 'dap-cpptools)
+	  (dap-ui-mode)
+	  (dap-ui-controls-mode)
+          (use-package dap-java
+            :ensure nil)
+          (require 'dap-cpptools)
+  :hook (dap-stopped-hook . (lambda (arg) (call-interactively #'dap-hydra))))
 
 
 ;; RealGUD
@@ -335,20 +329,15 @@
 ;;(use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
 ;;  :after (treemacs persp-mode) ;;or perspective vs. persp-mode
 ;;  :ensure t
-;;  :config (treemacs-set-scope-type 'Perspectives))4
+;;  :config (treemacs-set-scope-type 'Perspectives))
 
 
 ;; Smart tabs mode
-(use-package smart-tabs-mode)
-
-;; Enable smart tabs only for programming modes
-(smart-tabs-insinuate 'c 'c++ 'cperl 'java)
-(add-hook 'c-mode-common-hook
-	  (lambda () (setq indent-tabs-mode t)))
-(add-hook 'java-mode-hook
-	  (lambda () (setq indent-tabs-mode t)))
-(add-hook 'cperl-mode-hook
-	  (lambda () (setq indent-tabs-mode t)))
+(use-package smart-tabs-mode
+  :hook (c-mode-common-hook . (lambda () (setq indent-tabs-mode t)))
+        (java-mode-hook . (lambda () (setq indent-tabs-mode t)))
+        (cperl-mode-hook . (lambda () (setq indent-tabs-mode t)))
+  :init (smart-tabs-insinuate 'c 'c++ 'cperl 'java))
 
 
 ;;; Language-specific stuff
