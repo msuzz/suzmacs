@@ -59,8 +59,8 @@
       use-dialog-box nil    ; Put prompts in minibuffer
       use-short-answers t   ; y/n instead of yes/no
       load-prefer-newer t   ; Prefer newer elisp files
-      x-select-enable-clipboard nil ; Keep the Emacs kill ring
-      x-select-enable-primary nil   ; out of the system clipboard.
+      ;x-select-enable-clipboard nil ; Keep the Emacs kill ring
+      ;x-select-enable-primary nil   ; out of the system clipboard.
       compilation-read-command nil
       compilation-scroll-output 'first-error)
 
