@@ -57,13 +57,13 @@
       ring-bell-function 'ignore
       column-number-mode t
       use-dialog-box nil    ; Put prompts in minibuffer
-      use-short-answers t   ; y/n instead of yes/no
       load-prefer-newer t   ; Prefer newer elisp files
       ;x-select-enable-clipboard nil ; Keep the Emacs kill ring
       ;x-select-enable-primary nil   ; out of the system clipboard.
       compilation-read-command nil
       compilation-scroll-output 'first-error)
 
+(defalias 'yes-or-no-p 'y-or-n-p) ; y/n instead of yes/no
 (setq-default indent-tabs-mode nil)
 (global-set-key "\C-x\ \C-v" 'find-alternate-file) ; Quickly reload a changed buffer
 (auto-fill-mode -1) ; Turn off auto-fill-mode
