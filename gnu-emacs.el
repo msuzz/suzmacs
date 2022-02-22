@@ -25,9 +25,9 @@
 
 ;; Ensure packages are kept up to date
 (use-package auto-package-update
-  :config (setq auto-package-update-delete-old-versions t
-                auto-package-update-hide-results t)
-          (auto-package-update-maybe))
+  :custom (auto-package-update-delete-old-versions t)
+          (auto-package-update-hide-results t)
+  :config (auto-package-update-maybe))
 
 ;; Setup dirs
 (add-to-list 'load-path "~/.emacs.d/lisp/")
@@ -137,7 +137,7 @@
 ;; Projectile
 ;; ---------
 (use-package projectile
-  :diminish projectile-mode
+  :demand
   :bind (("C-c k" . #'projectile-kill-buffers)
          ("C-c m" . #'projectile-compile-project))
   :bind-keymap ("C-c p" . projectile-command-map)
@@ -155,7 +155,7 @@
           ;(use-package libgit
           ;  :config (use-package magit-libgit))
           (unless (boundp 'bug-reference-auto-setup-functions)
-             (defvar bug-reference-auto-setup-functions '())))
+            (defvar bug-reference-auto-setup-functions '())))
 
 
 ;; LSP mode
@@ -164,10 +164,12 @@
   :init (setq lsp-keymap-prefix "C-c l")
   :hook (lsp-mode . lsp-enable-which-key-integration)
         (c-mode . lsp-deferred)
-	(c++-mode . lsp-deferred)
-	(cperl-mode . lsp-deferred)
-  :config (setq lsp-completion-enable-additional-text-edit nil)
-          (use-package lsp-ui
+	      (c++-mode . lsp-deferred)
+	      (cperl-mode . lsp-deferred)
+        (java-mode . lsp-deferred)
+        (lsp-mode . lsp-lens-mode)
+        (java-mode . lsp-java-boot-lens-mode)
+  :config (use-package lsp-ui
             :custom (lsp-ui-doc-show-with-mouse t)
                     (lsp-ui-doc-show-with-cursor nil)
                     (lsp-ui-doc-delay 1.5)
@@ -177,12 +179,13 @@
           (use-package lsp-treemacs
             :custom (lsp-treemacs-sync-mode 1))
           (use-package lsp-java
-            :hook (java-mode-hook . lsp-deferred)
+            :hook (java-mode . lsp-deferred)
             :config (use-package lsp-java-boot
-                      :hook (lsp-mode-hook . lsp-lens-mode)
-                            (java-mode-hook . lsp-java-boot-lens-mode)))
+                      :ensure nil))
           (use-package ccls
-            :hook ((c-mode c++-mode objc-mode cuda-mode) . (lambda () (require 'ccls) (lsp-deferred))))
+            :hook
+              ((c-mode c++-mode objc-mode cuda-mode) . (lambda () (require 'ccls) (lsp-deferred))))
+  :custom (lsp-completion-enable-additional-test-edit nil)
   :commands lsp lsp-deferred)
 
           
@@ -191,16 +194,16 @@
 (use-package company
   :after lsp-mode
   :hook (lsp-mode . company-mode)
-        (after-init-hook . global-company-mode)
-  :bind (:map company-active-map ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
+        (after-init . global-company-mode)
+  :bind (:map company-active-map ("<tab>" . company-complete-selection)
+         :map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
   :custom (company-minimum-prefix-length 1)
           (company-idle-delay 0.0)
   :config (use-package company-box
             :hook (company-mode . company-box-mode)))
           
 ;; Requires PlSense perl module, abandoned
-;;(use-package company-plsense)
+;(use-package company-plsense)
           
 
 ;; DAP mode
@@ -208,13 +211,13 @@
 (use-package dap-mode
   :after lsp-mode
   :bind ("C-c b b" . dap-breakpoint-toggle)
-	("C-c b r" . dap-debug-restart)
-	("C-c b l" . dap-debug-last)
-	("C-c b d" . dap-debug)
+	      ("C-c b r" . dap-debug-restart)
+	      ("C-c b l" . dap-debug-last)
+	      ("C-c b d" . dap-debug)
   :config (dap-mode)
           (dap-auto-configure-mode)
-	  (dap-ui-mode)
-	  (dap-ui-controls-mode)
+	        (dap-ui-mode)
+	        (dap-ui-controls-mode)
           (use-package dap-java
             :ensure nil)
           (require 'dap-cpptools)
@@ -262,7 +265,7 @@
           treemacs-no-png-images                   nil
           treemacs-no-delete-other-windows         t
           treemacs-project-follow-cleanup          nil
-          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-persist-file   (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
           treemacs-position                        'left
           treemacs-read-string-input               'from-child-frame
           treemacs-recenter-distance               0.1
@@ -326,17 +329,18 @@
   :after (treemacs magit)
   :ensure t)
 
-;;(use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
-;;  :after (treemacs persp-mode) ;;or perspective vs. persp-mode
-;;  :ensure t
-;;  :config (treemacs-set-scope-type 'Perspectives))
+;;treemacs-perspective - if you use perspective.el vs. persp-mode
+;(use-package treemacs-persp 
+;  :after (treemacs persp-mode) ;;or perspective vs. persp-mode
+;  :ensure t
+;  :config (treemacs-set-scope-type 'Perspectives))
 
 
 ;; Smart tabs mode
 (use-package smart-tabs-mode
-  :hook (c-mode-common-hook . (lambda () (setq indent-tabs-mode t)))
-        (java-mode-hook . (lambda () (setq indent-tabs-mode t)))
-        (cperl-mode-hook . (lambda () (setq indent-tabs-mode t)))
+  :hook (c-mode-common . (lambda () (setq indent-tabs-mode t)))
+        (java-mode . (lambda () (setq indent-tabs-mode t)))
+        (cperl-mode . (lambda () (setq indent-tabs-mode t)))
   :init (smart-tabs-insinuate 'c 'c++ 'cperl 'java))
 
 
