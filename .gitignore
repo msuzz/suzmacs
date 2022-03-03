@@ -6,6 +6,7 @@ auto-saves/
 backups/
 eclipse.jdt.ls/
 elpa/
+lisp/pde/
 transient/
 themes/
 url/
