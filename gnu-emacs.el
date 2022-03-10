@@ -162,14 +162,13 @@
 ;; --------
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
-  :hook (lsp-mode . lsp-enable-which-key-integration)
-        (c-mode . lsp-deferred)
-	      (c++-mode . lsp-deferred)
+  :hook (c-mode-common . lsp-deferred)
 	      (cperl-mode . lsp-deferred)
         (java-mode . lsp-deferred)
         (lsp-mode . lsp-lens-mode)
         (java-mode . lsp-java-boot-lens-mode)
-  :config (use-package lsp-ui
+  :config (lsp-enable-which-key-integration t)
+          (use-package lsp-ui
             :custom (lsp-ui-doc-show-with-mouse t)
                     (lsp-ui-doc-show-with-cursor nil)
                     (lsp-ui-doc-delay 1.5)
@@ -184,7 +183,8 @@
                       :ensure nil))
           (use-package ccls
             :hook
-              ((c-mode c++-mode objc-mode cuda-mode) . (lambda () (require 'ccls) (lsp-deferred))))
+              ((c-mode-common) . (lambda () (require 'ccls) (lsp-deferred))))
+          (lsp-mode)
   :custom (lsp-completion-enable-additional-test-edit nil)
   :commands lsp lsp-deferred)
 
@@ -319,6 +319,8 @@
 
 (use-package treemacs-projectile
   :after (treemacs projectile)
+  :config (treemacs-project-follow-mode)
+          (treemacs-display-current-project-exclusively)
   :ensure t)
 
 (use-package treemacs-icons-dired
