@@ -154,17 +154,18 @@
 
 
 ;; Projectile
-;; ---------
+;; ----------
 (use-package projectile
   :demand
   :bind (("C-c k" . #'projectile-kill-buffers)
          ("C-c m" . #'projectile-compile-project))
   :bind-keymap ("C-c p" . projectile-command-map)
   :custom (projectile-enable-caching t)
-  :config (projectile-mode)
+  :config (use-package helm-projectile) 
+          (projectile-mode)
   :init (when (file-directory-p "~/Projects")
           (setq projectile-project-search-path '("~/Projects")))
-        (setq projectile-switch-project-action #'projectile-dired))
+        (setq projectile-switch-project-action #'treemacs-add-and-display-current-project))
 
 
 ;; Magit
