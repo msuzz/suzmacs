@@ -256,7 +256,6 @@
 
 ;; Bigass Treemacs section - copied from Treemacs github page
 (use-package treemacs
-  :ensure t
   :defer t
   :init
   (with-eval-after-load 'winum
@@ -338,18 +337,15 @@
 
 (use-package treemacs-projectile
   :after (treemacs projectile)
-  :config (treemacs-project-follow-mode)
-          (treemacs-display-current-project-exclusively)
-  :ensure t)
+  :config ;(treemacs-project-follow-mode)
+          (treemacs-display-current-project-exclusively))
 
 (use-package treemacs-icons-dired
   :after (treemacs dired)
-  :hook (dired-mode . treemacs-icons-dired-enable-once)
-  :ensure t)
+  :hook (dired-mode . treemacs-icons-dired-enable-once))
 
 (use-package treemacs-magit
-  :after (treemacs magit)
-  :ensure t)
+  :after (treemacs magit))
 
 ;;treemacs-perspective - if you use perspective.el vs. persp-mode
 ;(use-package treemacs-persp 
