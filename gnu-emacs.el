@@ -169,7 +169,7 @@
 
 
 ;; Magit
-;; ----
+;; -----
 (use-package magit
   :config (use-package forge)
           ;(use-package libgit
@@ -183,12 +183,12 @@
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
   :hook (c-mode-common . lsp-deferred)
+        (perl-mode . lsp-deferred)
 	      (cperl-mode . lsp-deferred)
         (java-mode . lsp-deferred)
         (lsp-mode . lsp-lens-mode)
         (java-mode . lsp-java-boot-lens-mode)
-  :config (lsp-enable-which-key-integration t)
-          (use-package lsp-ui
+  :config (use-package lsp-ui
             :custom (lsp-ui-doc-show-with-mouse t)
                     (lsp-ui-doc-show-with-cursor nil)
                     (lsp-ui-doc-delay 1.5)
@@ -202,10 +202,10 @@
             :config (use-package lsp-java-boot
                       :ensure nil))
           (use-package ccls
-            :hook
-              ((c-mode-common) . (lambda () (require 'ccls) (lsp-deferred))))
+            :hook ((c-mode-common) . (lambda () (require 'ccls) (lsp-deferred))))
           (lsp-mode)
-  :custom (lsp-completion-enable-additional-test-edit nil)
+  :custom (lsp-enable-which-key-integration t)
+          (lsp-completion-enable-additional-test-edit nil)
   :commands lsp lsp-deferred)
 
           
