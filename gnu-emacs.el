@@ -144,11 +144,13 @@
 
 ;; Helm
 ;; ----
-(use-package helm-xref
-  :config (helm-mode)
+(use-package helm
+  :straight t
+  :config (use-package helm-xref
   :bind ([remap find-file] . helm-find-files)
         ([remap execute-extended-command] . helm-M-x)
         ([remap switch-to-buffer] . helm-mini))
+          (helm-mode))
 
 
 ;; Projectile
