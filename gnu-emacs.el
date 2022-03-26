@@ -126,7 +126,7 @@
 ;(add-hook 'prog-mode-hook 'guess-style-guess-all)
 
 ;;; Packages and package configuration
-;;; ---------------------------------
+;;; ----------------------------------
 
 ;; A bunch of essentials
 (use-package gruvbox-theme)
@@ -146,10 +146,10 @@
 ;; ----
 (use-package helm
   :straight t
-  :config (use-package helm-xref
-  :bind ([remap find-file] . helm-find-files)
-        ([remap execute-extended-command] . helm-M-x)
-        ([remap switch-to-buffer] . helm-mini))
+  :bind (([remap find-file] . helm-find-files)
+  	 ([remap execute-extended-command] . helm-M-x)
+	 ([remap switch-to-buffer] . helm-mini))
+  :config (use-package helm-xref)
           (helm-mode))
 
 
@@ -350,7 +350,6 @@
 ;;treemacs-perspective - if you use perspective.el vs. persp-mode
 ;(use-package treemacs-persp 
 ;  :after (treemacs persp-mode) ;;or perspective vs. persp-mode
-;  :ensure t
 ;  :config (treemacs-set-scope-type 'Perspectives))
 
 
