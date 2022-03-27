@@ -161,7 +161,7 @@
          ("C-c m" . #'projectile-compile-project))
   :bind-keymap ("C-c p" . projectile-command-map)
   :custom (projectile-enable-caching t)
-  :config (use-package helm-projectile) 
+  :config (use-package helm-projectile)
           (projectile-mode)
   :init (when (file-directory-p "~/Projects")
           (setq projectile-project-search-path '("~/Projects")))
@@ -172,8 +172,8 @@
 ;; -----
 (use-package magit
   :config (use-package forge)
-          ;(use-package libgit
-          ;  :config (use-package magit-libgit))
+          (use-package libgit
+            :config (use-package magit-libgit))
           (unless (boundp 'bug-reference-auto-setup-functions)
             (defvar bug-reference-auto-setup-functions '())))
 
