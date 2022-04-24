@@ -4,11 +4,14 @@
 auto-save-list/
 auto-saves/
 backups/
+eclipse.jdt.ls/
+eln-cache/
 elpa/
 lisp/pde/
 straight/
 transient/
 themes/
+workspace/
 url/
 
 # Loose files
